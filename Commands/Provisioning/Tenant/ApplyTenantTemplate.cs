@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Threading.Tasks;
 
 namespace SharePointPnP.PowerShell.Commands.Provisioning.Tenant
 {
@@ -256,15 +257,37 @@ For instance with the example above, specifying {parameter:ListTitle} in your te
                     }
                 }
             }
-            if (!string.IsNullOrEmpty(SequenceId))
+
+            using (var provisioningContext = new PnPProvisioningContext((resource, scope) =>
             {
-                Tenant.ApplyProvisionHierarchy(hierarchyToApply, SequenceId, applyingInformation);
-            }
-            else
-            {
-                foreach (var sequence in hierarchyToApply.Sequences)
+                // Get Azure AD Token
+                if (AccessToken != null)
                 {
-                    Tenant.ApplyProvisionHierarchy(hierarchyToApply, sequence.ID, applyingInformation);
+                    // Authenticated using -Graph or using another way to retrieve the accesstoken with Connect-PnPOnline
+                    return Task.FromResult(AccessToken);
+                }
+                else if (SPOnlineConnection.CurrentConnection.PSCredential != null)
+                {
+                    // Using normal credentials
+                    return Task.FromResult(TokenHandler.AcquireToken(resource, null));
+                }
+                else
+                {
+                    // No token...
+                    return null;
+                }
+            }))
+            {
+                if (!string.IsNullOrEmpty(SequenceId))
+                {
+                    Tenant.ApplyProvisionHierarchy(hierarchyToApply, SequenceId, applyingInformation);
+                }
+                else
+                {
+                    foreach (var sequence in hierarchyToApply.Sequences)
+                    {
+                        Tenant.ApplyProvisionHierarchy(hierarchyToApply, sequence.ID, applyingInformation);
+                    }
                 }
             }
 
@@ -280,6 +303,38 @@ For instance with the example above, specifying {parameter:ListTitle} in your te
                 Path = System.IO.Path.Combine(SessionState.Path.CurrentFileSystemLocation.Path, Path);
             }
             return ReadTenantTemplate.LoadProvisioningHierarchyFromFile(Path, TemplateProviderExtensions);
+        }
+
+        private string AccessToken
+        {
+            get
+            {
+                if (SPOnlineConnection.AuthenticationResult != null)
+                {
+                    if (SPOnlineConnection.AuthenticationResult.ExpiresOn < DateTimeOffset.Now)
+                    {
+                        WriteWarning(Properties.Resources.MicrosoftGraphOAuthAccessTokenExpired);
+                        SPOnlineConnection.AuthenticationResult = null;
+                        return null;
+                    }
+                    else
+                    {
+#if !NETSTANDARD2_0
+                        return (SPOnlineConnection.AuthenticationResult.Token);
+#else
+                        return SPOnlineConnection.AuthenticationResult.AccessToken;
+#endif
+                    }
+                }
+                else if (SPOnlineConnection.CurrentConnection?.AccessToken != null)
+                {
+                    return SPOnlineConnection.CurrentConnection.AccessToken;
+                }
+                else
+                {
+                    return null;
+                }
+            }
         }
     }
 }
