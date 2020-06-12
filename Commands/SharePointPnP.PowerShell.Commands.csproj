@@ -908,6 +908,7 @@
     <Compile Include="Utilities\CertificateHelper.cs" />
     <Compile Include="Utilities\Clipboard.cs" />
     <Compile Include="Utilities\FileUtilities.cs" />
+    <Compile Include="Base\GetVersion.cs" />
     <Compile Include="Utilities\IsolatedStorage.cs" />
     <Compile Include="Utilities\JwtUtility.cs" />
     <Compile Include="Utilities\OperatingSystem.cs" />
