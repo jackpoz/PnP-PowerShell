@@ -142,6 +142,14 @@ namespace SharePointPnP.PowerShell.Commands.Base
             return TryGetToken(tokenAudience, roles)?.AccessToken;
         }
 
+        internal DateTime? TryGetTokenExpirationTime(TokenAudience tokenAudience)
+        {
+            if (AccessTokens.TryGetValue(tokenAudience, out GenericToken token))
+                return token?.ExpiresOn;
+            else
+                return null;
+        }
+
         /// <summary>
         /// Tries to get a token for the provided audience
         /// </summary>

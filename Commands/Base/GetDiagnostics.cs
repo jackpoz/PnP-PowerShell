@@ -1,4 +1,5 @@
 ﻿using SharePointPnP.PowerShell.CmdletHelpAttributes;
+using SharePointPnP.PowerShell.Commands.Enums;
 using SharePointPnP.PowerShell.Commands.Model;
 using System;
 using System.Collections;
@@ -26,7 +27,7 @@ namespace SharePointPnP.PowerShell.Commands.Base
             FillOperatingSystem(result);
             FillConnectionMethod(result);
             FillCurrentSite(result);
-            AddProperty(result, "AccessTokenExpirationTime", NotImplemented<DateTime?>());
+            FillAccessTokenExpirationTimes(result);
             AddProperty(result, "ModulePath", NotImplemented<string>());
             FillNewerVersionAvailable(result);
             FillLastException(result);
@@ -76,6 +77,20 @@ namespace SharePointPnP.PowerShell.Commands.Base
         void FillCurrentSite(PSObject result)
         {
             AddProperty(result, "CurrentSite", PnPConnection.CurrentConnection?.Url);
+        }
+
+        void FillAccessTokenExpirationTimes(PSObject result)
+        {
+            var connection = PnPConnection.CurrentConnection;
+            if (connection == null)
+                return;
+
+            foreach(TokenAudience audience in Enum.GetValues(typeof(TokenAudience)))
+            {
+                var expirationTime = connection.TryGetTokenExpirationTime(audience);
+                if (expirationTime != null)
+                    AddProperty(result, $"AccessTokenExpirationTime{audience}", expirationTime);
+            }
         }
 
         void FillNewerVersionAvailable(PSObject result)
