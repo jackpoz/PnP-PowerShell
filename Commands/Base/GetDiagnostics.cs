@@ -9,8 +9,7 @@ namespace SharePointPnP.PowerShell.Commands.Base
 {
     [Cmdlet(VerbsCommon.Get, "PnPDiagnostics")]
     [CmdletHelp("Returns diagnostic information",
-        Category = CmdletHelpCategory.Base,
-        OutputType = typeof(GetDiagnosticsResult))]
+        Category = CmdletHelpCategory.Base)]
     [CmdletExample(
         Code = "PS:> Get-PnPDiagnostics",
         Remarks = "Returns diagnostic information",
@@ -19,30 +18,31 @@ namespace SharePointPnP.PowerShell.Commands.Base
     {
         protected override void ExecuteCmdlet()
         {
-            var result = new GetDiagnosticsResult();
+            var result = new PSObject();
 
             FillVersion(result);
             FillPlatform(result);
-            result.ModuleName = NotImplemented<string>();
+            AddProperty(result, "ModuleName", NotImplemented<string>());
             FillOperatingSystem(result);
             FillConnectionMethod(result);
             FillCurrentSite(result);
-            result.AccessTokenExpirationTime = NotImplemented<DateTime?>();
-            result.ModulePath = NotImplemented<string>();
+            AddProperty(result, "AccessTokenExpirationTime", NotImplemented<DateTime?>());
+            AddProperty(result, "ModulePath", NotImplemented<string>());
             FillNewerVersionAvailable(result);
             FillLastException(result);
 
-            WriteObject(result, true);
+            WriteObject(result);
         }
 
-        void FillVersion(GetDiagnosticsResult result)
+        void FillVersion(PSObject result)
         {
             var assembly = Assembly.GetExecutingAssembly();
             var version = ((AssemblyFileVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version;
-            result.Version = version;
+            result.Properties.Add(new PSVariableProperty(new PSVariable("Version", version)));
+            AddProperty(result, "Version", version);
         }
 
-        void FillPlatform(GetDiagnosticsResult result)
+        void FillPlatform(PSObject result)
         {
             string platform;
 #if ONPREMISES
@@ -60,32 +60,33 @@ namespace SharePointPnP.PowerShell.Commands.Base
             platform = "SPO";
 #endif
 
-            result.Platform = platform;
+            AddProperty(result, "Platform", platform);
         }
 
-        void FillOperatingSystem(GetDiagnosticsResult result)
+        void FillOperatingSystem(PSObject result)
         {
-            result.OperatingSystem = Environment.OSVersion.VersionString;
+            AddProperty(result, "OperatingSystem", Environment.OSVersion.VersionString);
         }
 
-        void FillConnectionMethod(GetDiagnosticsResult result)
+        void FillConnectionMethod(PSObject result)
         {
-            result.ConnectionMethod = PnPConnection.CurrentConnection?.ConnectionMethod;
+            AddProperty(result, "ConnectionMethod", PnPConnection.CurrentConnection?.ConnectionMethod);
         }
 
-        void FillCurrentSite(GetDiagnosticsResult result)
+        void FillCurrentSite(PSObject result)
         {
-            result.CurrentSite = PnPConnection.CurrentConnection?.Url;
+            AddProperty(result, "CurrentSite", PnPConnection.CurrentConnection?.Url);
         }
 
-        void FillNewerVersionAvailable(GetDiagnosticsResult result)
+        void FillNewerVersionAvailable(PSObject result)
         {
-            result.NewerVersionAvailable = !string.IsNullOrEmpty(PnPConnectionHelper.GetLatestVersion());
+            AddProperty(result, "NewerVersionAvailable", !string.IsNullOrEmpty(PnPConnectionHelper.GetLatestVersion()));
         }
 
-        void FillLastException(GetDiagnosticsResult result)
+        void FillLastException(PSObject result)
         {
             // Most of this code has been copied from GetException cmdlet
+            PnPException pnpException = null;
             var exceptions = (ArrayList)this.SessionState.PSVariable.Get("error").Value;
             if (exceptions.Count > 0)
             {
@@ -100,39 +101,25 @@ namespace SharePointPnP.PowerShell.Commands.Base
                 {
                     timeStampUtc = (DateTime)exception.Exception.Data["TimeStampUtc"];
                 }
-                var pnpException = new PnPException() { CorrelationId = correlationId, TimeStampUtc = timeStampUtc, Message = exception.Exception.Message, Stacktrace = exception.Exception.StackTrace, ScriptLineNumber = exception.InvocationInfo.ScriptLineNumber, InvocationInfo = exception.InvocationInfo, Exception = exception.Exception };
+                pnpException = new PnPException() { CorrelationId = correlationId, TimeStampUtc = timeStampUtc, Message = exception.Exception.Message, Stacktrace = exception.Exception.StackTrace, ScriptLineNumber = exception.InvocationInfo.ScriptLineNumber, InvocationInfo = exception.InvocationInfo, Exception = exception.Exception };
 
-                result.LastCorrelationId = pnpException.CorrelationId;
-                result.LastExceptionTimeStampUtc = pnpException.TimeStampUtc;
-                result.LastExceptionMessage = pnpException.Message;
-                result.LastExceptionStacktrace = pnpException.Stacktrace;
-                result.LastExceptionScriptLineNumber = pnpException.ScriptLineNumber;
             }
+
+            AddProperty(result, "LastCorrelationId", pnpException?.CorrelationId);
+            AddProperty(result, "LastExceptionTimeStampUtc", pnpException?.TimeStampUtc);
+            AddProperty(result, "LastExceptionMessage", pnpException?.Message);
+            AddProperty(result, "LastExceptionStacktrace", pnpException?.Stacktrace);
+            AddProperty(result, "LastExceptionScriptLineNumber", pnpException?.ScriptLineNumber);
+        }
+
+        void AddProperty(PSObject pso, string name, object value)
+        {
+            pso.Properties.Add(new PSVariableProperty(new PSVariable(name, value)));
         }
 
         T NotImplemented<T>()
         {
             return default;
         }
-    }
-
-    class GetDiagnosticsResult
-    {
-        public string Version { get; set; }
-        public string Platform { get; set; }
-        public string ModuleName { get; set; }
-        public string OperatingSystem { get; set; }
-        // Was this actually ConnectionMethod ?
-        //public string AuthenticationMode { get; set; }
-        public ConnectionMethod? ConnectionMethod { get; set; }
-        public string CurrentSite { get; set; }
-        public DateTime? AccessTokenExpirationTime { get; set; }
-        public string ModulePath { get; set; }
-        public bool NewerVersionAvailable { get; set; }
-        public string LastCorrelationId { get; set; }
-        public DateTime? LastExceptionTimeStampUtc { get; set; }
-        public string LastExceptionMessage { get; set; }
-        public string LastExceptionStacktrace { get; set; }
-        public int? LastExceptionScriptLineNumber { get; set; }
     }
 }
