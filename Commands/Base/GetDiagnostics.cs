@@ -39,7 +39,6 @@ namespace SharePointPnP.PowerShell.Commands.Base
         {
             var assembly = Assembly.GetExecutingAssembly();
             var version = ((AssemblyFileVersionAttribute)assembly.GetCustomAttribute(typeof(AssemblyFileVersionAttribute))).Version;
-            result.Properties.Add(new PSVariableProperty(new PSVariable("Version", version)));
             AddProperty(result, "Version", version);
         }
 
