@@ -3,6 +3,8 @@ using SharePointPnP.PowerShell.Commands.Enums;
 using SharePointPnP.PowerShell.Commands.Model;
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Management.Automation;
 using System.Reflection;
@@ -28,7 +30,7 @@ namespace SharePointPnP.PowerShell.Commands.Base
             FillOperatingSystem(result);
             FillConnectionMethod(result);
             FillCurrentSite(result);
-            FillAccessTokenExpirationTimes(result);
+            FillAccessTokens(result);
             FillNewerVersionAvailable(result);
             FillLastException(result);
 
@@ -99,18 +101,11 @@ namespace SharePointPnP.PowerShell.Commands.Base
             AddProperty(result, "CurrentSite", PnPConnection.CurrentConnection?.Url);
         }
 
-        void FillAccessTokenExpirationTimes(PSObject result)
+        void FillAccessTokens(PSObject result)
         {
-            var connection = PnPConnection.CurrentConnection;
-            if (connection == null)
-                return;
+            var tokens = PnPConnection.CurrentConnection?.GetAllStoredTokens() ?? new ReadOnlyDictionary<TokenAudience, GenericToken>(new Dictionary<TokenAudience, GenericToken>());
 
-            foreach(TokenAudience audience in Enum.GetValues(typeof(TokenAudience)))
-            {
-                var expirationTime = connection.TryGetTokenExpirationTime(audience);
-                if (expirationTime != null)
-                    AddProperty(result, $"AccessTokenExpirationTime{audience}", expirationTime);
-            }
+            AddProperty(result, $"AccessTokens", tokens);
         }
 
         void FillNewerVersionAvailable(PSObject result)

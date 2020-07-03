@@ -7,6 +7,7 @@ using SharePointPnP.PowerShell.Commands.Model;
 using SharePointPnP.PowerShell.Core.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Host;
@@ -140,14 +141,6 @@ namespace SharePointPnP.PowerShell.Commands.Base
         internal string TryGetAccessToken(TokenAudience tokenAudience, string[] roles = null)
         {
             return TryGetToken(tokenAudience, roles)?.AccessToken;
-        }
-
-        internal DateTime? TryGetTokenExpirationTime(TokenAudience tokenAudience)
-        {
-            if (AccessTokens.TryGetValue(tokenAudience, out GenericToken token))
-                return token?.ExpiresOn;
-            else
-                return null;
         }
 
         /// <summary>
@@ -303,6 +296,11 @@ namespace SharePointPnP.PowerShell.Commands.Base
                 }
             }
             return (valid, message);
+        }
+
+        internal ReadOnlyDictionary<TokenAudience, GenericToken> GetAllStoredTokens()
+        {
+            return new ReadOnlyDictionary<TokenAudience, GenericToken>(AccessTokens);
         }
 
         #endregion
