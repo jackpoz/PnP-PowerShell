@@ -47,7 +47,7 @@ namespace SharePointPnP.PowerShell.Commands.Base
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         }
 
-        private string AssemblyDirectoryFromLocation
+        protected string AssemblyDirectoryFromLocation
         {
             get
             {
@@ -57,7 +57,7 @@ namespace SharePointPnP.PowerShell.Commands.Base
             }
         }
 
-        private string AssemblyDirectoryFromCodeBase
+        protected string AssemblyDirectoryFromCodeBase
         {
             get
             {

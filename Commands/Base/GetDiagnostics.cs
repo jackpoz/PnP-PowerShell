@@ -3,6 +3,7 @@ using SharePointPnP.PowerShell.Commands.Enums;
 using SharePointPnP.PowerShell.Commands.Model;
 using System;
 using System.Collections;
+using System.IO;
 using System.Management.Automation;
 using System.Reflection;
 
@@ -23,16 +24,15 @@ namespace SharePointPnP.PowerShell.Commands.Base
 
             FillVersion(result);
             FillPlatform(result);
-            AddProperty(result, "ModuleName", NotImplemented<string>());
+            FillModuleInfo(result);
             FillOperatingSystem(result);
             FillConnectionMethod(result);
             FillCurrentSite(result);
             FillAccessTokenExpirationTimes(result);
-            AddProperty(result, "ModulePath", NotImplemented<string>());
             FillNewerVersionAvailable(result);
             FillLastException(result);
 
-            WriteObject(result);
+            WriteObject(result, true);
         }
 
         void FillVersion(PSObject result)
@@ -61,6 +61,27 @@ namespace SharePointPnP.PowerShell.Commands.Base
 #endif
 
             AddProperty(result, "Platform", platform);
+        }
+
+        void FillModuleInfo(PSObject result)
+        {
+            var modulePath = AssemblyDirectoryFromLocation;
+            DirectoryInfo dirInfo = new DirectoryInfo(modulePath);
+            if (!dirInfo.Exists)
+            {
+                modulePath = AssemblyDirectoryFromCodeBase;
+                dirInfo = new DirectoryInfo(modulePath);
+                if (!dirInfo.Exists)
+                {
+                    modulePath = "Could not retrieve the information";
+                    dirInfo = null;
+                }
+            }
+
+            string moduleName = dirInfo?.Name ?? "Could not retrieve the information";
+
+            AddProperty(result, "ModulePath", modulePath);
+            AddProperty(result, "ModuleName", moduleName);
         }
 
         void FillOperatingSystem(PSObject result)
@@ -129,11 +150,6 @@ namespace SharePointPnP.PowerShell.Commands.Base
         void AddProperty(PSObject pso, string name, object value)
         {
             pso.Properties.Add(new PSVariableProperty(new PSVariable(name, value)));
-        }
-
-        T NotImplemented<T>()
-        {
-            return default;
         }
     }
 }
