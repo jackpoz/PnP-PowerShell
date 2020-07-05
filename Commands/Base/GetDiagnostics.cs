@@ -49,17 +49,17 @@ namespace SharePointPnP.PowerShell.Commands.Base
             string platform;
 #if ONPREMISES
 #if SP2013
-            platform = "SP2013";
+            platform = "SharePoint2013";
 #elif SP2016
-            platform = "SP2016";
+            platform = "SharePoint2016";
 #elif SP2019
-            platform = "SP2019";
+            platform = "SharePoint2019";
 #else
             // Unknown version (foolproof for next ONPREMISES versions)
-            platform = "ONPREMISES";
+            platform = "SharePointOnPremises";
 #endif
 #else
-            platform = "SPO";
+            platform = "SharePointOnline";
 #endif
 
             AddProperty(result, "Platform", platform);
