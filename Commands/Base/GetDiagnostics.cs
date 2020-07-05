@@ -67,11 +67,11 @@ namespace SharePointPnP.PowerShell.Commands.Base
 
         void FillModuleInfo(PSObject result)
         {
-            var modulePath = AssemblyDirectoryFromLocation;
+            var modulePath = AssemblyDirectoryFromCodeBase;
             DirectoryInfo dirInfo = new DirectoryInfo(modulePath);
             if (!dirInfo.Exists)
             {
-                modulePath = AssemblyDirectoryFromCodeBase;
+                modulePath = AssemblyDirectoryFromLocation;
                 dirInfo = new DirectoryInfo(modulePath);
                 if (!dirInfo.Exists)
                 {
