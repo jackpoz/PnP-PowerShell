@@ -1,12 +1,12 @@
 ﻿#if !ONPREMISES
 using OfficeDevPnP.Core.Entities;
 using OfficeDevPnP.Core.Framework.Graph;
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Management.Automation;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Add, "PnPMicrosoft365GroupMember")]
     [Alias("Add-PnPUnifiedGroupMember")]
@@ -26,7 +26,7 @@ namespace SharePointPnP.PowerShell.Commands.Graph
     public class AddMicrosoft365GroupMember : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, HelpMessage = "The Identity of the Microsoft 365 Group to add members to")]
-        public UnifiedGroupPipeBind Identity;
+        public Microsoft365GroupPipeBind Identity;
 
         [Parameter(Mandatory = true, HelpMessage = "The UPN(s) of the user(s) to add to the Microsoft 365 Group as a member")]
         public string[] Users;

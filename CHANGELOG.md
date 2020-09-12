@@ -5,15 +5,83 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 
-## [3.23.2007.0] (not yet released)
+## [3.26.2010.0] ** not yet released **
 
 ### Added
-- Added `-WithRightsAssignedDetailed` parameter to `Get-PnPUser` allowing for fine grained (broken) permissions on item, list and site level to be shown [PR #2754](https://github.com/pnp/PnP-PowerShell/pull/2754)
+
+
+### Changed
+
+
+### Contributors
+
+
+## [3.25.2009.1]
+
+### Changed
+- Underlying PnP Sites Core library has been updated to fix an issue with the Provisioning Engine and Teams Provisioning.
+
+## [3.25.2009.0] 
+
+### Added
+- Added ability to set site collection specific expiration on anonymous sharing links through the `-AnonymousLinkExpirationInDays` and `-OverrideTenantAnonymousLinkExpirationPolicy` attributes on `Set-PnPSite` and `Set-PnPTenantSite` [PR #2866](https://github.com/pnp/PnP-PowerShell/pull/2866)
+
+### Changed
+
+
+### Contributors
+- Koen Zomers [koenzomers]
+- Erwin van hunen [erwinvanhunen]
+- Todd Klindt [ToddKlindt]
+
+## [3.24.2008.1]
+
+### Added
+- Added -AzureEnvironment parameter to `Initialize-PnPPowerShellAuthentication` to create an Azure AD App in other Azure environments than the default one. 
+- Added -AzureEnvironment parameter to all Connect-PnPOnline options which result in an OAuth based authentication connection, supporting the various Azure Environments available. 
+
+### Changed
+- Fixed issue with Submit-PnPTeamsChannelMessage not posting HTML message when setting the content type to Html.
+- The content type that Submit-PnPTeamsChannelMessage uses defaults now to HTML.
+- Fixed an issue with the PnP Provisioning Engine not being able to correctly acquire a token for the Microsoft Graph when provisioning a tenant template containing a Team.
+- Optimized Submit-PnPSearchQuery and Get-PnPSiteSearchQueryResults cmdlets when using the -All parameter.
+- Fixed TrimDuplicates to be default off for Submit-PnPSearchQuery
+
+### Contributors
+
+
+## [3.24.2008.0]
+
+### Added
+- Updated `Get/Set-PnPSearchSettings` with an option `-SearchBoxPlaceholderText` to set search placeholder text for the SPO nav bar search box 
+- Added Set-PnPTermGroup cmdlet to update an existing taxonomy term group.
+- Added Set-PnPTeamifyPromptHidden to hide the teamify prompt on a group connected Team Site (modern team site)
+
+### Changed
+- Changed the client id of the application used behind the scenes when authenticating to a tenant where Legacy Authentication has been turned off. We now by default utilize the PnP Management Shell application. If you have not provided consent you will be prompted with a message on how to provide consent.
+
+### Contributors
+
+
+## [3.23.2007.1]
+
+### Changed
+- Fixed issue with Remove-PnPTeamsTab not working as intended
+- Fixed issue with Add-PnPTeamsChannel -Private not working as intended. We now require you to specify an owner.
+- Fixed authentication issues when using Connect-PnPOnline and mixed Resource permissions scopes (e.g. Graph and Office 365 Management API)
+- Fixed issue where Disconnect-PnPOnline would not clear the in memory token cache when using Disconnect-PnPOnline
+
+## [3.23.2007.0]
+
+### Added
+- Added `-WithRightsAssignedDetailed` parameter to `Get-PnPUser` when used against SharePoint Online allowing for fine grained (broken) permissions on item, list and site level to be shown [PR #2754](https://github.com/pnp/PnP-PowerShell/pull/2754)
 - Added a `-RowLimit` parameter to `Clear-PnPRecycleBinItem` and `Restore-PnPRecycleBinItem` so that it can be used on recycle bins which hold more than 5000 items [PR #2760](https://github.com/pnp/PnP-PowerShell/pull/2760)
 - Added connection option to `Connect-PnPOnline` taking `-Scopes` and `-Credentials` to allow setting up a delegated permission token for use with Microsoft Graph and the Office 365 Management API. See [this wiki page](https://github.com/pnp/PnP-PowerShell/wiki/Connect-options#connect-using-scopes-and-credentials) for more details. [PR #2746](https://github.com/pnp/PnP-PowerShell/pull/2746)
 - Added support for enabling and disabling fields using `Set-PnPField -Identity FieldName -Values @{AllowDeletion=$false}` [PR #2766](https://github.com/pnp/PnP-PowerShell/pull/2766)
 - Added the following cmdlets to add/remove/clear owners and members of Microsoft 365 Groups: `Add-PnPMicrosoft365GroupMember`, `Add-PnPMicrosoft365GroupOwner`, `Remove-PnPMicrosoft365GroupMember`, `Remove-PnPMicrosoft365GroupOwner`, `Clear-PnPMicrosoft365GroupMember`, `Clear-PnPMicrosoft365GroupOwner` [PR #2750](https://github.com/pnp/PnP-PowerShell/pull/2750)
 - Added Add-PnPTeamsChannel, Add-PnPTeamsTab, Add-PnPTeamsUser, Get-PnPTeamsApp, Get-PnPTeamsChannel, Get-PnPTeamsChannelMessage, Get-PnPTeamsTab, Get-PnPTeamsTeam, Get-PnPTeamsUser, New-PnPTeamsApp, New-PnPTeamsTeam, Remove-PnPTeamsChannel, Remove-PnPTeamsTab, Remove-PnPTeamsTeam, Remove-PnPTeamsUser, Set-PnPTeamsChannel, Set-PnPTeamsTab, Set-PnPTeamsTeam, Set-PnPTeamsPicture, Submit-PnPTeamsChannelMessage, Update-PnPTeamsApp cmdlets
+- Added Get-PnPFileVersion, Remove-PnPFileVersion, Restore-PnPFileVersion cmdlets
+- Added `-HideFromAddressLists` and `-HideFromOutlookClients` to `Set-PnPUnifiedGroup` to allow for setting the visibility of Microsoft 365 Groups [PR #2717](https://github.com/pnp/PnP-PowerShell/pull/2717)
 
 ### Changed
 - Updated implementation of `Move-PnPFile` to now also support moving of files and folders accross site collections [PR #2749](https://github.com/pnp/PnP-PowerShell/pull/2749)
@@ -23,6 +91,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/).
 - Fixed issue where using `Connect-PnPOnline` using `-Thumbnail` would delete the private key on some devices when running `Disconnect-PnPOnline` [PR #2759](https://github.com/pnp/PnP-PowerShell/pull/2759)
 - Fixed timeouts on `Get-PnPSiteCollectionAdmin` when the site has a lot of users [PR #2769](https://github.com/pnp/PnP-PowerShell/pull/2769)
 - Updated test project structure [PR #2767](https://github.com/pnp/PnP-PowerShell/pull/2767)
+- Updated the Microsoft Authentication Library (MSAL) to 4.16.1 which resolves an [issue in the MSAL library](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/pull/1891) which caused many of the `Connect-PnPOnline` options not to work in Azure Runbooks anymore [PR #2735](https://github.com/pnp/PnP-PowerShell/pull/2735)
+- All UnifiedGroup cmdlets have been renamed to Microsoft365Group. I.e. `New-PnPUnifiedGroup` -> `New-PnPMicrosoft365Group`. An alias has been added to provide for backwards compatibility [PR #2771](https://github.com/pnp/PnP-PowerShell/pull/2771)
 
 ### Contributors
 - Erwin van Hunen [erwinvanhunen]

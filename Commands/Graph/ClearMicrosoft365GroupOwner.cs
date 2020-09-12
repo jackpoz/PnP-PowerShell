@@ -1,12 +1,12 @@
 ﻿#if !ONPREMISES
 using OfficeDevPnP.Core.Entities;
 using OfficeDevPnP.Core.Framework.Graph;
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
 using System.Management.Automation;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Clear, "PnPMicrosoft365GroupOwner")]
     [Alias("Clear-PnPUnifiedGroupOwner")]
@@ -22,7 +22,7 @@ namespace SharePointPnP.PowerShell.Commands.Graph
     public class ClearMicrosoft365GroupOwner : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, HelpMessage = "The Identity of the Microsoft 365 Group to remove all owners from")]
-        public UnifiedGroupPipeBind Identity;
+        public Microsoft365GroupPipeBind Identity;
 
         protected override void ExecuteCmdlet()
         {

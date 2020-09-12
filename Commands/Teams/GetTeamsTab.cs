@@ -1,11 +1,11 @@
 ﻿#if !ONPREMISES
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
-using SharePointPnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsCommon.Get, "PnPTeamsTab")]
     [CmdletHelp("Gets one or all tabs in a channel.",
@@ -51,19 +51,11 @@ namespace SharePointPnP.PowerShell.Commands.Graph
                 {
                     if (ParameterSpecified(nameof(Identity)))
                     {
-
-                        if (string.IsNullOrEmpty(Identity.Id))
-                        {
-                            WriteObject(Identity.GetTab(HttpClient, AccessToken, groupId, channelId));
-                        }
-                        else
-                        {
-                            WriteObject(Identity.GetTabById(HttpClient, AccessToken, groupId, channelId));
-                        }
+                        WriteObject(Identity.GetTab(HttpClient, AccessToken, groupId, channelId));
                     }
                     else
                     {
-                        WriteObject(TeamsUtility.GetTabs(AccessToken, HttpClient, groupId, channelId));
+                        WriteObject(TeamsUtility.GetTabsAsync(AccessToken, HttpClient, groupId, channelId).GetAwaiter().GetResult(), true);
                     }
                 }
                 else

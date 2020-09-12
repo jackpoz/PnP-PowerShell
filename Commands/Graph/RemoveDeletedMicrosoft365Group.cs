@@ -1,31 +1,31 @@
 ﻿#if !ONPREMISES
 using System.Management.Automation;
 using OfficeDevPnP.Core.Framework.Graph;
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Graph
 {
-    [Cmdlet(VerbsCommon.Remove, "PnPDeletedUnifiedGroup")]
-
-    [CmdletHelp("Permanently removes one deleted Microsoft 365 Group (aka Unified Group)",
+    [Cmdlet(VerbsCommon.Remove, "PnPDeletedMicrosoft365Group")]
+    [Alias("Remove-PnPDeletedUnifiedGroup")]
+    [CmdletHelp("Permanently removes one deleted Microsoft 365 Group",
         Category = CmdletHelpCategory.Graph,
         SupportedPlatform = CmdletSupportedPlatform.Online)]
     [CmdletExample(
-        Code = "PS:> Remove-PnPDeletedUnifiedGroup -Identity 38b32e13-e900-4d95-b860-fb52bc07ca7f",
+        Code = "PS:> Remove-PnPDeletedMicrosoft365Group -Identity 38b32e13-e900-4d95-b860-fb52bc07ca7f",
         Remarks = "Permanently removes a deleted Microsoft 365 Group based on its ID",
         SortOrder = 1)]
     [CmdletExample(
-        Code = @"PS:> $group = Get-PnPDeletedUnifiedGroup -Identity 38b32e13-e900-4d95-b860-fb52bc07ca7f
-PS:> Remove-PnPDeletedUnifiedGroup -Identity $group",
+        Code = @"PS:> $group = Get-PnPDeletedMicrosoft365Group -Identity 38b32e13-e900-4d95-b860-fb52bc07ca7f
+PS:> Remove-PnPDeletedMicrosoft365Group -Identity $group",
         Remarks = "Permanently removes the provided deleted Microsoft 365 Group",
         SortOrder = 2)]
     [CmdletMicrosoftGraphApiPermission(MicrosoftGraphApiPermission.Group_ReadWrite_All)]
-    public class RemoveDeletedUnifiedGroup : PnPGraphCmdlet
+    public class RemoveDeletedMicrosoft365Group : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, ValueFromPipeline = true, HelpMessage = "The Identity of the deleted Microsoft 365 Group")]
-        public UnifiedGroupPipeBind Identity;
+        public Microsoft365GroupPipeBind Identity;
 
         protected override void ExecuteCmdlet()
         {

@@ -826,7 +826,7 @@
     <View>
       <Name>ProvisioningTemplateInformation</Name>
       <ViewSelectedBy>
-        <TypeName>SharePointPnP.PowerShell.Commands.Components.ProvisioningTemplateInformation</TypeName>
+        <TypeName>PnP.PowerShell.Commands.Components.ProvisioningTemplateInformation</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -1397,7 +1397,7 @@
     <View>
       <Name>PnPException</Name>
       <ViewSelectedBy>
-        <TypeName>SharePointPnP.PowerShell.Commands.Model.PnPException</TypeName>
+        <TypeName>PnP.PowerShell.Commands.Model.PnPException</TypeName>
       </ViewSelectedBy>
       <ListControl>
         <ListEntries>
@@ -1463,6 +1463,40 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Status</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>FileVersion</Name>
+      <ViewSelectedBy>
+        <TypeName>Microsoft.SharePoint.Client.FileVersion</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Id</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VersionLabel</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Created</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>VersionLabel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Created</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

@@ -1,12 +1,13 @@
 ﻿#if !ONPREMISES
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
-using SharePointPnP.PowerShell.Commands.Model.Teams;
-using SharePointPnP.PowerShell.Commands.Utilities;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Model.Teams;
+using PnP.PowerShell.Commands.Utilities;
 using System.Management.Automation;
+using System.Threading.Tasks;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Graph
 {
     [Cmdlet(VerbsLifecycle.Submit, "PnPTeamsChannelMessage")]
     [CmdletHelp("Sends a message to a Microsoft Teams Channel.",
@@ -32,8 +33,8 @@ namespace SharePointPnP.PowerShell.Commands.Graph
         [Parameter(Mandatory = true, HelpMessage = "The message to send to the channel.")]
         public string Message;
 
-        [Parameter(Mandatory = false, HelpMessage = "Specify to set the content type of the message, either Text or Html.")]
-        public TeamChannelMessageContentType ContentType;
+        [Parameter(Mandatory = false, HelpMessage = "Specify to set the content type of the message, either Text or Html. Defaults to Html.")]
+        public TeamChannelMessageContentType ContentType = TeamChannelMessageContentType.Html;
 
         [Parameter(Mandatory = false, HelpMessage = "Specify to make this an important message.")]
         public SwitchParameter Important;
@@ -49,18 +50,20 @@ namespace SharePointPnP.PowerShell.Commands.Graph
                     var channelMessage = new TeamChannelMessage();
                     channelMessage.Importance = Important ? "high" : "normal";
                     channelMessage.Body.Content = Message;
-                    channelMessage.Body.ContentType = ContentType;
+                    channelMessage.Body.ContentType = ContentType == TeamChannelMessageContentType.Html ? "html" : "text";
 
-                    TeamsUtility.PostMessage(HttpClient, AccessToken, groupId, channel.Id, channelMessage);
-                } else
+                    TeamsUtility.PostMessageAsync(HttpClient, AccessToken, groupId, channel.Id, channelMessage).GetAwaiter().GetResult();
+                }
+                else
                 {
                     throw new PSArgumentException("Channel not found");
                 }
-            } else
+            }
+            else
             {
                 throw new PSArgumentException("Team not found");
             }
-            
+
         }
     }
 }

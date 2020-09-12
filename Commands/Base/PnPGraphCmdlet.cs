@@ -1,14 +1,14 @@
 ﻿#if !ONPREMISES
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Model;
-using SharePointPnP.PowerShell.Commands.Properties;
-using SharePointPnP.PowerShell.Core.Attributes;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Model;
+using PnP.PowerShell.Commands.Properties;
+using PnP.PowerShell.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
 using System.Net.Http;
 
-namespace SharePointPnP.PowerShell.Commands.Base
+namespace PnP.PowerShell.Commands.Base
 {
     /// <summary>
     /// Base class for all the PnP Microsoft Graph related cmdlets
@@ -60,10 +60,10 @@ namespace SharePointPnP.PowerShell.Commands.Base
                 if (PnPConnection.CurrentConnection != null)
                 {
                     // There is an active connection, try to get a Microsoft Graph Token on the active connection
-                    if (PnPConnection.CurrentConnection.TryGetToken(Enums.TokenAudience.MicrosoftGraph, ByPassPermissionCheck.ToBool() ? null : orRequiredRoles.ToArray(), ByPassPermissionCheck.ToBool() ? null : andRequiredRoles.ToArray(), tokenType) is GraphToken token)
+                    if (PnPConnection.CurrentConnection.TryGetToken(Enums.TokenAudience.MicrosoftGraph, PnPConnection.CurrentConnection.AzureEnvironment, ByPassPermissionCheck.ToBool() ? null : orRequiredRoles.ToArray(), ByPassPermissionCheck.ToBool() ? null : andRequiredRoles.ToArray(), tokenType) is GraphToken token)
                     {
                         // Microsoft Graph Access Token available, return it
-                        return token;
+                        return (GraphToken)token;
                     }
                 }
 

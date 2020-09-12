@@ -1,13 +1,14 @@
 ﻿#if !ONPREMISES
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Model;
-using SharePointPnP.PowerShell.Commands.Properties;
-using SharePointPnP.PowerShell.Core.Attributes;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Model;
+using PnP.PowerShell.Commands.Properties;
+using PnP.PowerShell.Core.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Management.Automation;
+using System.Net.Http;
 
-namespace SharePointPnP.PowerShell.Commands.Base
+namespace PnP.PowerShell.Commands.Base
 {
     /// <summary>
     /// Base class for all the PnP Microsoft Office Management API related cmdlets
@@ -60,7 +61,7 @@ namespace SharePointPnP.PowerShell.Commands.Base
                 if (PnPConnection.CurrentConnection != null)
                 {
                     // There is an active connection, try to get a Microsoft Office Management API Token on the active connection
-                    if (PnPConnection.CurrentConnection.TryGetToken(Enums.TokenAudience.OfficeManagementApi, ByPassPermissionCheck.ToBool() ? null : orRequiredRoles.ToArray(), ByPassPermissionCheck.ToBool() ? null : andRequiredRoles.ToArray(), tokenType) is OfficeManagementApiToken token)
+                    if (PnPConnection.CurrentConnection.TryGetToken(Enums.TokenAudience.OfficeManagementApi, PnPConnection.CurrentConnection.AzureEnvironment, ByPassPermissionCheck.ToBool() ? null : orRequiredRoles.ToArray(), ByPassPermissionCheck.ToBool() ? null : andRequiredRoles.ToArray(), tokenType) is OfficeManagementApiToken token)
                     {
                         // Microsoft Office Management API Access Token available, return it
                         return token;
@@ -82,6 +83,9 @@ namespace SharePointPnP.PowerShell.Commands.Base
         /// Root URL to the Office 365 Management API
         /// </summary>
         protected string ApiRootUrl => $"https://manage.office.com/api/v1.0/{Token.TenantId}/";
+
+        public HttpClient HttpClient => PnPConnection.CurrentConnection.HttpClient;
+
     }
 }
 #endif

@@ -5,10 +5,10 @@ using OfficeDevPnP.Core.Framework.Provisioning.Model;
 using OfficeDevPnP.Core.Framework.Provisioning.Model.Configuration;
 using OfficeDevPnP.Core.Framework.Provisioning.ObjectHandlers;
 using OfficeDevPnP.Core.Framework.Provisioning.Providers;
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
-using SharePointPnP.PowerShell.Commands.Model;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.Commands.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using System.Linq;
 using System.Management.Automation;
 using System.Threading.Tasks;
 
-namespace SharePointPnP.PowerShell.Commands.Provisioning.Tenant
+namespace PnP.PowerShell.Commands.Provisioning.Tenant
 {
     [Cmdlet("Apply", "PnPTenantTemplate", SupportsShouldProcess = true)]
     [CmdletHelp("Applies a tenant template to the current tenant. You must have the Office 365 Global Admin role to run this cmdlet successfully.",
@@ -294,16 +294,54 @@ For instance with the example above, specifying {parameter:ListTitle} in your te
                 }
             }
 #if !ONPREMISES
+
+            // check if consent is needed and in place
+            var consentRequired = false;
+            if (hierarchyToApply.Teams != null)
+            {
+                consentRequired = true;
+            }
+            if(hierarchyToApply.AzureActiveDirectory != null)
+            {
+                consentRequired = true;
+            }
+            if (consentRequired)
+            {
+                // try to retrieve an access token for the Microsoft Graph:
+
+                var accessToken = PnPConnection.CurrentConnection.TryGetAccessToken(Enums.TokenAudience.MicrosoftGraph);
+                if (accessToken == null)
+                {
+                    if (PnPConnection.CurrentConnection.PSCredential != null)
+                    {
+                        // Using normal credentials
+                        accessToken = TokenHandler.AcquireToken("graph.microsoft.com", null);
+                    }
+                    if (accessToken == null)
+                    {
+                        throw new PSInvalidOperationException("Your template contains artifacts that require an access token. Please provide consent to the PnP Management Shell application first by executing: Connect-PnPOnline -Graph -LaunchBrowser");
+                    }
+                }
+            }
+
             using (var provisioningContext = new PnPProvisioningContext((resource, scope) =>
             {
+                if(resource.ToLower().StartsWith("https://"))
+                {
+                    var uri = new Uri(resource);
+                    resource = uri.Authority;
+                }
                 // Get Azure AD Token
                 if (PnPConnection.CurrentConnection != null)
                 {
-                    var graphAccessToken = PnPConnection.CurrentConnection.TryGetAccessToken(Enums.TokenAudience.MicrosoftGraph);
-                    if (graphAccessToken != null)
+                    if (resource.Equals("graph.microsoft.com", StringComparison.OrdinalIgnoreCase))
                     {
-                        // Authenticated using -Graph or using another way to retrieve the accesstoken with Connect-PnPOnline
-                        return Task.FromResult(graphAccessToken);
+                        var graphAccessToken = PnPConnection.CurrentConnection.TryGetAccessToken(Enums.TokenAudience.MicrosoftGraph);
+                        if (graphAccessToken != null)
+                        {
+                            // Authenticated using -Graph or using another way to retrieve the accesstoken with Connect-PnPOnline
+                            return Task.FromResult(graphAccessToken);
+                        }
                     }
                 }
 
@@ -315,8 +353,8 @@ For instance with the example above, specifying {parameter:ListTitle} in your te
                 else
                 {
                     // No token...
-                    return null;
-                }
+                    throw new PSInvalidOperationException("Your template contains artifacts that require an access token. Please provide consent to the PnP Management Shell application first by executing: Connect-PnPOnline -Graph -LaunchBrowser");
+                 }
             }))
             {
 #endif

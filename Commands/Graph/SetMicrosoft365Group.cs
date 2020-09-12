@@ -1,45 +1,50 @@
 ﻿#if !ONPREMISES
 using OfficeDevPnP.Core.Entities;
 using OfficeDevPnP.Core.Framework.Graph;
-using SharePointPnP.PowerShell.CmdletHelpAttributes;
-using SharePointPnP.PowerShell.Commands.Base;
-using SharePointPnP.PowerShell.Commands.Base.PipeBinds;
+using PnP.PowerShell.CmdletHelpAttributes;
+using PnP.PowerShell.Commands.Base;
+using PnP.PowerShell.Commands.Base.PipeBinds;
 using System;
 using System.IO;
 using System.Management.Automation;
 
-namespace SharePointPnP.PowerShell.Commands.Graph
+namespace PnP.PowerShell.Commands.Graph
 {
-    [Cmdlet(VerbsCommon.Set, "PnPUnifiedGroup")]
-    [CmdletHelp("Sets Microsoft 365 Group (aka Unified Group) properties",
+    [Cmdlet(VerbsCommon.Set, "PnPMicrosoft365Group")]
+    [Alias("Set-PnPUnifiedGroup")]
+    [CmdletHelp("Sets Microsoft 365 Group properties",
         Category = CmdletHelpCategory.Graph,
-        OutputTypeLink = "https://docs.microsoft.com/graph/api/group-update",
         SupportedPlatform = CmdletSupportedPlatform.Online)]
     [CmdletExample(
-       Code = @"PS:> Set-PnPUnifiedGroup -Identity $group -DisplayName ""My Displayname""",
+       Code = @"PS:> Set-PnPMicrosoft365Group -Identity $group -DisplayName ""My Displayname""",
        Remarks = "Sets the display name of the group where $group is a Group entity",
        SortOrder = 1)]
     [CmdletExample(
-       Code = @"PS:> Set-PnPUnifiedGroup -Identity $groupId -Descriptions ""My Description"" -DisplayName ""My DisplayName""",
+       Code = @"PS:> Set-PnPMicrosoft365Group -Identity $groupId -Descriptions ""My Description"" -DisplayName ""My DisplayName""",
        Remarks = "Sets the display name and description of a group based upon its ID",
        SortOrder = 2)]
     [CmdletExample(
-       Code = @"PS:> Set-PnPUnifiedGroup -Identity $group -GroupLogoPath "".\MyLogo.png""",
+       Code = @"PS:> Set-PnPMicrosoft365Group -Identity $group -GroupLogoPath "".\MyLogo.png""",
        Remarks = "Sets a specific Microsoft 365 Group logo",
        SortOrder = 3)]
     [CmdletExample(
-       Code = @"PS:> Set-PnPUnifiedGroup -Identity $group -IsPrivate:$false",
+       Code = @"PS:> Set-PnPMicrosoft365Group -Identity $group -IsPrivate:$false",
        Remarks = "Sets a group to be Public if previously Private",
        SortOrder = 4)]
     [CmdletExample(
-       Code = @"PS:> Set-PnPUnifiedGroup -Identity $group -Owners demo@contoso.com",
+       Code = @"PS:> Set-PnPMicrosoft365Group -Identity $group -Owners demo@contoso.com",
        Remarks = "Sets demo@contoso.com as owner of the group",
        SortOrder = 5)]
+    [CmdletExample(
+       Code = @"PS:> Set-PnPMicrosoft365Group -Identity $group -HideFromOutlookClients:$false",
+       Remarks = "Ensures the provided group will be shown in Outlook clients",
+       SortOrder = 6)]
+    [CmdletRelatedLink(Text = "Documentation", Url = "https://docs.microsoft.com/graph/api/group-update")]
     [CmdletMicrosoftGraphApiPermission(MicrosoftGraphApiPermission.Group_ReadWrite_All)]
-    public class SetUnifiedGroup : PnPGraphCmdlet
+    public class SetMicrosoft365Group : PnPGraphCmdlet
     {
         [Parameter(Mandatory = true, HelpMessage = "The Identity of the Microsoft 365 Group", ValueFromPipeline = true)]
-        public UnifiedGroupPipeBind Identity;
+        public Microsoft365GroupPipeBind Identity;
 
         [Parameter(Mandatory = false, HelpMessage = "The DisplayName of the group to set")]
         public string DisplayName;
@@ -61,6 +66,12 @@ namespace SharePointPnP.PowerShell.Commands.Graph
 
         [Parameter(Mandatory = false, HelpMessage = "Creates a Microsoft Teams team associated with created group")]
         public SwitchParameter CreateTeam;
+
+        [Parameter(Mandatory = false, HelpMessage = "Hides the group from the Global Address List")]
+        public bool? HideFromAddressLists;
+
+        [Parameter(Mandatory = false, HelpMessage = "Hides the group from Outlook Clients")]
+        public bool? HideFromOutlookClients;
 
         protected override void ExecuteCmdlet()
         {
@@ -100,6 +111,12 @@ namespace SharePointPnP.PowerShell.Commands.Graph
                         groupLogo: groupLogoStream,
                         isPrivate: isPrivateGroup,
                         createTeam: CreateTeam);
+
+                    if (ParameterSpecified(nameof(HideFromAddressLists)) || ParameterSpecified(nameof(HideFromOutlookClients)))
+                    {
+                        // For this scenario a separate call needs to be made
+                        UnifiedGroupsUtility.SetUnifiedGroupVisibility(group.GroupId, AccessToken, HideFromAddressLists, HideFromOutlookClients);
+                    }
                 }
                 catch(Exception e)
                 {
