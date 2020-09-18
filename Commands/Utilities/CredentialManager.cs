@@ -21,6 +21,9 @@ namespace PnP.PowerShell.Commands.Utilities
             {
                 name = $"PnPPS:{name}";
             }
+
+            name = name.TrimEnd('/');
+
 #if !PNPPSCORE
             WriteWindowsCredentialManagerEntry(name, username, password);
             return true;
